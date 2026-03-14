@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 
+const API_KEY = import.meta.env.VITE_ANTHROPIC_KEY;
 const SYSTEM_PROMPT = `You are PERA AI, a friendly and smart voice assistant. Keep all answers short and conversational — perfect for speaking aloud. No bullet points or markdown. Talk naturally like a phone call. Be warm and helpful.`;
 
 export default function App() {
@@ -39,9 +40,14 @@ export default function App() {
     try {
       const res = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": API_KEY,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true"
+        },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
+          model: "claude-haiku-4-5-20251001",
           max_tokens: 1000,
           system: SYSTEM_PROMPT,
           messages: convRef.current
@@ -94,8 +100,6 @@ export default function App() {
 
   return (
     <div style={{minHeight:"100vh",background:"linear-gradient(135deg,#0a0a0a 0%,#0d1f0d 50%,#0a0a0a 100%)",display:"flex",flexDirection:"column",alignItems:"center",padding:"0 16px 40px",fontFamily:"Georgia,serif",color:"#e8f0e8"}}>
-
-      {/* Header */}
       <div style={{width:"100%",maxWidth:560,display:"flex",justifyContent:"space-between",alignItems:"center",padding:"24px 0 8px"}}>
         <div>
           <div style={{fontSize:26,fontWeight:"bold",letterSpacing:3,color:"#4caf50"}}>PERA AI</div>
@@ -108,8 +112,6 @@ export default function App() {
           </button>
         )}
       </div>
-
-      {/* Orb */}
       <div style={{margin:"30px 0 12px",position:"relative",display:"flex",alignItems:"center",justifyContent:"center"}}>
         {[90,120,150].map((s,i) => (
           <div key={i} style={{position:"absolute",width:s,height:s,borderRadius:"50%",
@@ -128,16 +130,11 @@ export default function App() {
           {status==="listening"?"🎙️":status==="speaking"?"🔊":status==="thinking"?"⋯":"🎤"}
         </button>
       </div>
-
-      {/* Status */}
       <div style={{fontSize:12,letterSpacing:2,textTransform:"uppercase",marginBottom:6,color:status==="idle"?"#2d4a2d":"#4caf50",minHeight:18}}>
         {status==="listening"?"Listening…":status==="speaking"?"Speaking…":status==="thinking"?"Thinking…":"Tap to speak"}
       </div>
-
       {transcript && <div style={{fontSize:13,color:"#4caf50",fontStyle:"italic",marginBottom:6,maxWidth:500,textAlign:"center"}}>"{transcript}"</div>}
       {error && <div style={{fontSize:12,color:"#ef5350",background:"rgba(100,0,0,0.3)",padding:"6px 16px",borderRadius:20,marginBottom:8}}>{error}</div>}
-
-      {/* Chat */}
       <div style={{width:"100%",maxWidth:560,background:"rgba(255,255,255,0.02)",border:"1px solid rgba(76,175,80,0.1)",borderRadius:20,padding:16,marginTop:10,minHeight:200,maxHeight:"42vh",overflowY:"auto"}}>
         {messages.length===0 && !isThinking && (
           <div style={{textAlign:"center",color:"#1a3a1a",paddingTop:40}}>
@@ -168,9 +165,7 @@ export default function App() {
         )}
         <div ref={chatEndRef}/>
       </div>
-
       <div style={{marginTop:16,fontSize:11,color:"#1a2e1a",letterSpacing:1,textAlign:"center"}}>USE CHROME FOR BEST EXPERIENCE</div>
-
       <style>{`
         @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.12);opacity:0.5}}
         @keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
